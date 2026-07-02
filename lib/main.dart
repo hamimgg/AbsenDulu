@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'injection.dart';
@@ -36,22 +37,29 @@ class MainApp extends StatelessWidget {
           surface: Color(0xFF1A1A2E),
           error: Color(0xFFFF6B6B),
         ),
-        fontFamily: 'Roboto',
-        textTheme: const TextTheme(
-          headlineLarge: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
-          ),
-          headlineMedium: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.3,
-          ),
-          titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-          bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-          bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-        ),
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
+            .copyWith(
+              displayLarge: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+              headlineLarge: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+              titleLarge: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+              bodyLarge: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
+              bodySmall: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: const Color(0xFF1A1A2E),
@@ -177,28 +185,37 @@ class _SplashWrapperState extends State<SplashWrapper>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
+                      Image.asset(
+                        'lib/assets/images/logo.png',
                         width: 100,
                         height: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(28),
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF6C63FF), Color(0xFF00D2FF)],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF6C63FF).withOpacity(0.4),
-                              blurRadius: 30,
-                              spreadRadius: 5,
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.fingerprint,
-                          color: Colors.white,
-                          size: 50,
-                        ),
                       ),
+                      // Container(
+                      //   width: 100,
+                      //   height: 100,
+                      //   decoration: BoxDecoration(
+                      //     borderRadius: BorderRadius.circular(28),
+                      //     gradient: const LinearGradient(
+                      //       colors: [Color(0xFF6C63FF), Color(0xFF00D2FF)],
+                      //     ),
+                      //     boxShadow: [
+                      //       BoxShadow(
+                      //         color: const Color(0xFF6C63FF).withOpacity(0.4),
+                      //         blurRadius: 30,
+                      //         spreadRadius: 5,
+                      //       ),
+                      //     ],
+                      //   ),
+                      //   child: const Image(
+                      //     image: AssetImage('assets/images/logo.png'),
+                      //     fit: BoxFit.cover,
+                      //   ),
+                      //   // Icon(
+                      //   //   Icons.fingerprint,
+                      //   //   color: Colors.white,
+                      //   //   size: 50,
+                      //   // ),
+                      // ),
                       const SizedBox(height: 24),
                       ShaderMask(
                         shaderCallback: (bounds) => const LinearGradient(

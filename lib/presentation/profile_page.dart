@@ -17,7 +17,7 @@ class _ProfilePageState extends State<ProfilePage> {
   static const _bgColor = Color(0xFF0F0F1A);
   static const _surfaceColor = Color(0xFF1A1A2E);
   static const _cardSurface = Color(0xFF16213E);
-  static const _primaryColor = Color(0xFF6C63FF);
+  static const _primaryColor = Color(0xFF4CAF50);
   static const _accentColor = Color(0xFF00D2FF);
   static const _borderColor = Color(0xFF2A2A4A);
   static const _mutedText = Color(0xFF8888AA);

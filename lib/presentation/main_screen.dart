@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../injection.dart';
 import '../models/user_model.dart';
 import 'checkin_map_page.dart';
 import 'edit_profile_page.dart';
+import 'history_page.dart';
+import 'leave_page.dart';
 import 'profile_page.dart';
 
 class MainScreen extends StatefulWidget {
@@ -18,11 +21,80 @@ class _MainScreenState extends State<MainScreen> {
 
   // Store future so it doesn't re-fetch on rebuild
   late final Future<UserModel> _profileFuture;
+  bool _hasCheckedIn = false;
+  DateTime? _checkInTime;
+  DateTime? _checkOutTime;
+  String _currentAddress = 'PPKD Jakarta Pusat';
 
   @override
   void initState() {
     super.initState();
     _profileFuture = Injection.authRepository.getProfile();
+    _loadAttendanceState();
+  }
+
+  Future<void> _loadAttendanceState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getFormattedDate();
+    final savedDate = prefs.getString('attendance_date');
+
+    if (savedDate == today) {
+      setState(() {
+        _hasCheckedIn = prefs.getBool('has_checked_in') ?? false;
+        final inTimeStr = prefs.getString('check_in_time');
+        final outTimeStr = prefs.getString('check_out_time');
+        if (inTimeStr != null) _checkInTime = DateTime.parse(inTimeStr);
+        if (outTimeStr != null) _checkOutTime = DateTime.parse(outTimeStr);
+        _currentAddress = prefs.getString('current_address') ?? _currentAddress;
+      });
+    } else {
+      // Reset for a new day
+      await prefs.setString('attendance_date', today);
+      await prefs.setBool('has_checked_in', false);
+      await prefs.remove('check_in_time');
+      await prefs.remove('check_out_time');
+      await prefs.remove('current_address');
+    }
+  }
+
+  Future<void> _saveAttendanceState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_checked_in', _hasCheckedIn);
+    if (_checkInTime != null) {
+      await prefs.setString('check_in_time', _checkInTime!.toIso8601String());
+    }
+    if (_checkOutTime != null) {
+      await prefs.setString('check_out_time', _checkOutTime!.toIso8601String());
+    }
+    await prefs.setString('current_address', _currentAddress);
+  }
+
+  String _getFormattedDate() {
+    final now = DateTime.now();
+    const days = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu',
+    ];
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return '${days[now.weekday - 1]}, ${now.day} ${months[now.month - 1]} ${now.year}';
   }
 
   @override
@@ -31,7 +103,12 @@ class _MainScreenState extends State<MainScreen> {
       backgroundColor: const Color(0xFF0F0F1A),
       body: IndexedStack(
         index: _currentIndex,
-        children: [_buildHomeTab(), const ProfilePage()],
+        children: [
+          _buildHomeTab(),
+          HistoryPage(checkInTime: _checkInTime, checkOutTime: _checkOutTime),
+          const LeavePage(),
+          const ProfilePage(),
+        ],
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -42,8 +119,8 @@ class _MainScreenState extends State<MainScreen> {
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
           backgroundColor: const Color(0xFF1A1A2E),
-          selectedItemColor: const Color(0xFF6C63FF),
-          unselectedItemColor: const Color(0xFF555577),
+          selectedItemColor: const Color(0xFF4CAF50),
+          unselectedItemColor: const Color(0xFF00D2FF),
           type: BottomNavigationBarType.fixed,
           elevation: 0,
           selectedLabelStyle: const TextStyle(
@@ -58,6 +135,14 @@ class _MainScreenState extends State<MainScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.home_rounded),
               label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history_rounded),
+              label: 'Riwayat',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.note_alt_rounded),
+              label: 'Izin',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_rounded),
@@ -84,8 +169,8 @@ class _MainScreenState extends State<MainScreen> {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  const Color(0xFF6C63FF).withOpacity(0.15),
-                  const Color(0xFF6C63FF).withOpacity(0.0),
+                  const Color(0xFF4CAF50).withValues(),
+                  const Color(0xFF4CAF50).withValues(),
                 ],
               ),
             ),
@@ -120,8 +205,8 @@ class _MainScreenState extends State<MainScreen> {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  const Color(0xFF6C63FF).withOpacity(0.10),
-                  const Color(0xFF6C63FF).withOpacity(0.0),
+                  const Color(0xFF4CAF50).withOpacity(0.10),
+                  const Color(0xFF4CAF50).withOpacity(0.0),
                 ],
               ),
             ),
@@ -182,10 +267,10 @@ class _MainScreenState extends State<MainScreen> {
       children: [
         ShaderMask(
           shaderCallback: (bounds) => const LinearGradient(
-            colors: [Color(0xFF6C63FF), Color(0xFF00D2FF)],
+            colors: [Color(0xFF4CAF50), Color(0xFF00D2FF)],
           ).createShader(bounds),
           child: const Text(
-            'Selamat Datang',
+            'AbsenDulu',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -200,7 +285,7 @@ class _MainScreenState extends State<MainScreen> {
         else if (snapshot.hasData)
           ShaderMask(
             shaderCallback: (bounds) => const LinearGradient(
-              colors: [Color(0xFF6C63FF), Color(0xFF00D2FF)],
+              colors: [Color(0xFF4CAF50), Color(0xFF00D2FF)],
             ).createShader(bounds),
             child: Text(
               '${snapshot.data!.name}! 👋',
@@ -235,7 +320,7 @@ class _MainScreenState extends State<MainScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFF6C63FF), Color(0xFF00D2FF)],
+                  colors: [Color(0xFF4CAF50), Color(0xFF00D2FF)],
                 ),
               ),
             ),
@@ -292,17 +377,12 @@ class _MainScreenState extends State<MainScreen> {
             // Icon
             Padding(
               padding: const EdgeInsets.only(right: 18),
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00D2FF).withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: const Icon(
                   Icons.school_rounded,
-                  color: Color(0xFF00D2FF),
-                  size: 26,
+                  color: Color(0xFF4CAF50),
+                  size: 32,
                 ),
               ),
             ),
@@ -354,8 +434,8 @@ class _MainScreenState extends State<MainScreen> {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        splashColor: const Color(0xFF6C63FF).withOpacity(0.15),
-        highlightColor: const Color(0xFF6C63FF).withOpacity(0.08),
+        splashColor: const Color(0xFF4CAF50).withValues(),
+        highlightColor: const Color(0xFF4CAF50).withValues(),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
           decoration: BoxDecoration(
@@ -372,7 +452,7 @@ class _MainScreenState extends State<MainScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14),
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF6C63FF), Color(0xFF00D2FF)],
+                    colors: [Color(0xFF4CAF50), Color(0xFF00D2FF)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -410,37 +490,48 @@ class _MainScreenState extends State<MainScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.location_on_outlined,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'PPKD Jakarta Pusat',
-                    style: TextStyle(
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on_outlined,
                       color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _currentAddress,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: _hasCheckedIn
+                      ? const Color(0xFF4CAF50).withOpacity(0.2)
+                      : Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  'Hadir',
+                child: Text(
+                  _hasCheckedIn ? 'Hadir' : 'Belum Absen',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: _hasCheckedIn
+                        ? const Color(0xFF4CAF50)
+                        : Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -449,17 +540,17 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Rabu, 1 Juli 2026',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+          Text(
+            _getFormattedDate(),
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 24),
           Row(
             children: [
               Expanded(
                 child: Column(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       'CHECK IN',
                       style: TextStyle(
                         color: Colors.white70,
@@ -467,10 +558,12 @@ class _MainScreenState extends State<MainScreen> {
                         letterSpacing: 1.2,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      '-',
-                      style: TextStyle(
+                      _checkInTime != null
+                          ? "${_checkInTime!.hour.toString().padLeft(2, '0')}:${_checkInTime!.minute.toString().padLeft(2, '0')}"
+                          : '-',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -486,8 +579,8 @@ class _MainScreenState extends State<MainScreen> {
               ),
               Expanded(
                 child: Column(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       'CHECK OUT',
                       style: TextStyle(
                         color: Colors.white70,
@@ -495,10 +588,12 @@ class _MainScreenState extends State<MainScreen> {
                         letterSpacing: 1.2,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      '-',
-                      style: TextStyle(
+                      _checkOutTime != null
+                          ? "${_checkOutTime!.hour.toString().padLeft(2, '0')}:${_checkOutTime!.minute.toString().padLeft(2, '0')}"
+                          : '-',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -521,22 +616,38 @@ class _MainScreenState extends State<MainScreen> {
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () {
-            if (snapshot.hasData) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CheckinMapPage(
-                    userName: snapshot.data!.name ?? 'User',
-                    isCheckIn: false, // Set to true if hasn't checked in
-                  ),
-                ),
-              );
-            }
-          },
+          onPressed: (_hasCheckedIn && _checkOutTime != null)
+              ? null
+              : () async {
+                  if (snapshot.hasData) {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CheckinMapPage(
+                          userName: snapshot.data!.name ?? 'User',
+                          isCheckIn:
+                              !_hasCheckedIn, // Set to true if hasn't checked in
+                        ),
+                      ),
+                    );
+
+                    if (result != null && result is Map<String, dynamic>) {
+                      setState(() {
+                        _currentAddress = result['address'] ?? _currentAddress;
+                        if (!_hasCheckedIn) {
+                          _hasCheckedIn = true;
+                          _checkInTime = result['time'];
+                        } else {
+                          _checkOutTime = result['time'];
+                        }
+                      });
+                      await _saveAttendanceState();
+                    }
+                  }
+                },
           style: snapshot.connectionState == ConnectionState.waiting
               ? ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6C63FF).withOpacity(0.5),
+                  backgroundColor: const Color(0xFF4CAF50).withValues(),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
                     vertical: 16,
@@ -546,7 +657,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 )
               : ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6C63FF),
+                  backgroundColor: const Color(0xFF4CAF50),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
                     vertical: 16,
@@ -555,9 +666,11 @@ class _MainScreenState extends State<MainScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-          child: const Text(
-            'Check In / Out',
-            style: TextStyle(
+          child: Text(
+            _hasCheckedIn && _checkOutTime != null
+                ? 'Absen Selesai Hari Ini'
+                : (_hasCheckedIn ? 'Check Out' : 'Check In'),
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 16,

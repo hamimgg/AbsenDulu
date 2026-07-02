@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage>
   static const _background = Color(0xFF0F0F1A);
   static const _surface = Color(0xFF1A1A2E);
   // static const _cardSurface = Color(0xFF16213E);
-  static const _primary = Color(0xFF6C63FF);
+  static const _primary = Color(0xFF4CAF50);
   static const _secondary = Color(0xFF00D2FF);
   static const _border = Color(0xFF2A2A4A);
   static const _textMuted = Color(0xFF8888AA);
@@ -121,7 +121,9 @@ class _LoginPageState extends State<LoginPage>
               height: 340,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: RadialGradient(colors: [_primary, _primary]),
+                gradient: RadialGradient(
+                  colors: [Color(0xFF4CAF50), Color(0xFF4CAF50)],
+                ),
               ),
             ),
           ),
@@ -135,7 +137,9 @@ class _LoginPageState extends State<LoginPage>
               height: 380,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: RadialGradient(colors: [_secondary, _secondary]),
+                gradient: RadialGradient(
+                  colors: [Color(0xFF00D2FF), Color(0xFF00D2FF)],
+                ),
               ),
             ),
           ),
@@ -150,7 +154,10 @@ class _LoginPageState extends State<LoginPage>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  colors: [_primary.withOpacity(0.08), Colors.transparent],
+                  colors: [
+                    Color(0xFF4CAF50).withOpacity(0.08),
+                    Colors.transparent,
+                  ],
                 ),
               ),
             ),
@@ -214,13 +221,13 @@ class _LoginPageState extends State<LoginPage>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: _primary.withOpacity(0.45),
+            color: Color(0xFF4CAF50).withValues(),
             blurRadius: 32,
             spreadRadius: 2,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: _secondary.withOpacity(0.20),
+            color: _secondary.withValues(),
             blurRadius: 48,
             spreadRadius: 0,
             offset: const Offset(0, 12),
@@ -238,7 +245,7 @@ class _LoginPageState extends State<LoginPage>
         Rect.fromLTWH(0, 0, bounds.width, bounds.height),
       ),
       child: const Text(
-        'Udah Absen',
+        'AbsenDulu',
         style: TextStyle(
           fontSize: 34,
           fontWeight: FontWeight.w800,
@@ -253,7 +260,7 @@ class _LoginPageState extends State<LoginPage>
   // ── Subtitle ───────────────────────────────────────────────────────────
   Widget _buildSubtitle() {
     return const Text(
-      'Attendance Made Simple',
+      'Absen Dulu, Kerja Nanti! 😎',
       style: TextStyle(
         fontSize: 15,
         color: _textMuted,
@@ -287,7 +294,7 @@ class _LoginPageState extends State<LoginPage>
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(_inputRadius),
-        borderSide: const BorderSide(color: _primary, width: 1.5),
+        borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(_inputRadius),
@@ -307,7 +314,7 @@ class _LoginPageState extends State<LoginPage>
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       style: const TextStyle(color: Colors.white, fontSize: 15),
-      cursorColor: _primary,
+      cursorColor: Color(0xFF4CAF50),
       decoration: _inputDecoration(
         hint: 'Email',
         prefixIcon: Icons.email_outlined,
@@ -327,7 +334,7 @@ class _LoginPageState extends State<LoginPage>
       controller: _passwordController,
       obscureText: _obscurePassword,
       style: const TextStyle(color: Colors.white, fontSize: 15),
-      cursorColor: _primary,
+      cursorColor: Color(0xFF4CAF50),
       decoration: _inputDecoration(
         hint: 'Password',
         prefixIcon: Icons.lock_outlined,
@@ -359,7 +366,7 @@ class _LoginPageState extends State<LoginPage>
         borderRadius: BorderRadius.circular(_containerRadius),
         boxShadow: [
           BoxShadow(
-            color: _primary.withOpacity(0.35),
+            color: Color(0xFF4CAF50),
             blurRadius: 20,
             spreadRadius: 0,
             offset: const Offset(0, 8),

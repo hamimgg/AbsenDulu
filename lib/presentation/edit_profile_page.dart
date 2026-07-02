@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:udah_absen/models/training_model.dart';
 
 import '../injection.dart';
 import '../models/user_model.dart';
@@ -22,8 +23,11 @@ class _EditProfilePageState extends State<EditProfilePage>
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
   late final TextEditingController _batchIdController;
-  late final TextEditingController _trainingIdController;
+  // late final TextEditingController _trainingIdController;
 
+  final List<TrainingModel> _trainings = [];
+  TrainingModel? _selectedTraining;
+  bool _isLoadingTrainings = true;
   String? _selectedJenisKelamin;
   bool _isLoading = false;
   bool _isUploadingPhoto = false;
@@ -38,9 +42,38 @@ class _EditProfilePageState extends State<EditProfilePage>
     _batchIdController = TextEditingController(
       text: widget.user.batchId?.toString() ?? '',
     );
-    _trainingIdController = TextEditingController(
-      text: widget.user.trainingId?.toString() ?? '',
-    );
+    _selectedJenisKelamin = widget.user.jenisKelamin;
+
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+
+    _loadTrainings();
+  }
+
+  Future<void> _loadTrainings() async {
+    try {
+      final trainings = await Injection.authRepository.getTrainings();
+      if (mounted) {
+        setState(() {
+          _trainings.clear();
+          _trainings.addAll(trainings);
+          if (widget.user.trainingId != null) {
+            _selectedTraining = _trainings.cast<TrainingModel?>().firstWhere(
+              (t) => t?.id == widget.user.trainingId,
+              orElse: () => null,
+            );
+          }
+          _isLoadingTrainings = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingTrainings = false);
+        _showSnackBar('Gagal memuat daftar training', isError: true);
+      }
+    }
     _selectedJenisKelamin = widget.user.jenisKelamin;
 
     _shimmerController = AnimationController(
@@ -54,7 +87,7 @@ class _EditProfilePageState extends State<EditProfilePage>
     _nameController.dispose();
     _emailController.dispose();
     _batchIdController.dispose();
-    _trainingIdController.dispose();
+    // _trainingIdController.dispose();
     _shimmerController.dispose();
     super.dispose();
   }
@@ -63,14 +96,14 @@ class _EditProfilePageState extends State<EditProfilePage>
   static const _bgColor = Color(0xFF0F0F1A);
   static const _surfaceColor = Color(0xFF1A1A2E);
   static const _cardSurface = Color(0xFF16213E);
-  static const _primaryColor = Color(0xFF6C63FF);
+  static const _primaryColor = Color(0xFF4CAF50);
   static const _accentColor = Color(0xFF00D2FF);
   static const _borderColor = Color(0xFF2A2A4A);
   static const _textMuted = Color(0xFF8888AA);
   static const _errorColor = Color(0xFFFF6B6B);
 
   static const _gradient = LinearGradient(
-    colors: [Color(0xFF6C63FF), Color(0xFF00D2FF)],
+    colors: [Color(0xFF4CAF50), Color(0xFF00D2FF)],
   );
 
   // ── Photo Picking ──────────────────────────────────────────────────────
@@ -105,7 +138,7 @@ class _EditProfilePageState extends State<EditProfilePage>
         email: _emailController.text.trim(),
         jenisKelamin: _selectedJenisKelamin!,
         batchId: int.parse(_batchIdController.text.trim()),
-        trainingId: int.parse(_trainingIdController.text.trim()),
+        trainingId: _selectedTraining!.id, // Assuming trainingId is an int
       );
       if (!mounted) return;
       _showSnackBar('Profil berhasil diperbarui', isError: false);
@@ -475,21 +508,22 @@ class _EditProfilePageState extends State<EditProfilePage>
               // 5. Training ID
               _buildLabel('Training ID'),
               const SizedBox(height: 8),
-              _buildTextField(
-                controller: _trainingIdController,
-                hint: 'Masukkan Training ID',
-                icon: Icons.school_outlined,
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return 'Training ID wajib diisi';
-                  }
-                  if (int.tryParse(v.trim()) == null) {
-                    return 'Masukkan angka yang valid';
-                  }
-                  return null;
-                },
-              ),
+              //   _buildTextField(
+              //     controller: _trainingIdController,
+              //     hint: 'Masukkan Training ID',
+              //     icon: Icons.school_outlined,
+              //     keyboardType: TextInputType.number,
+              //     validator: (v) {
+              //       if (v == null || v.trim().isEmpty) {
+              //         return 'Training ID wajib diisi';
+              //       }
+              //       if (int.tryParse(v.trim()) == null) {
+              //         return 'Masukkan angka yang valid';
+              //       }
+              //       return null;
+              //     },
+              //   ),
+              _buildTrainingIdDropdown(),
             ],
           ),
         ),
@@ -634,6 +668,7 @@ class _EditProfilePageState extends State<EditProfilePage>
 
   Widget _buildDropdown() {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: _selectedJenisKelamin,
       onChanged: (value) => setState(() => _selectedJenisKelamin = value),
       validator: (v) =>
@@ -692,6 +727,85 @@ class _EditProfilePageState extends State<EditProfilePage>
         DropdownMenuItem(value: 'L', child: Text('Laki-laki')),
         DropdownMenuItem(value: 'P', child: Text('Perempuan')),
       ],
+    );
+  }
+
+  Widget _buildTrainingIdDropdown() {
+    return DropdownButtonFormField<TrainingModel>(
+      isExpanded: true,
+      initialValue: _selectedTraining,
+      onChanged: (value) {
+        setState(() {
+          _selectedTraining = value;
+        });
+      },
+      validator: (v) => (v == null) ? 'Training ID wajib dipilih' : null,
+      dropdownColor: _cardSurface,
+      icon: ShaderMask(
+        shaderCallback: (bounds) => _gradient.createShader(bounds),
+        child: const Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: Colors.white,
+        ),
+      ),
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 15,
+        fontWeight: FontWeight.w500,
+      ),
+      decoration: InputDecoration(
+        prefixIcon: ShaderMask(
+          shaderCallback: (bounds) => _gradient.createShader(bounds),
+          child: const Icon(
+            Icons.school_outlined,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+        filled: true,
+        fillColor: _surfaceColor.withOpacity(0.6),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _borderColor.withOpacity(0.5)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _borderColor.withOpacity(0.5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _accentColor, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _errorColor, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _errorColor, width: 1.5),
+        ),
+        errorStyle: const TextStyle(
+          color: _errorColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      items: _trainings.map((training) {
+        return DropdownMenuItem<TrainingModel>(
+          value: training,
+          child: Text(
+            training.title,
+            style: const TextStyle(color: Colors.white),
+          ),
+        );
+      }).toList(),
+      hint: _isLoadingTrainings
+          ? const Text('Memuat...', style: TextStyle(color: Colors.white))
+          : null,
     );
   }
 

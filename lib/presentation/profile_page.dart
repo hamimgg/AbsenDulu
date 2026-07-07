@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../injection.dart';
 import '../models/user_model.dart';
 import 'edit_profile_page.dart';
+import 'introduction_page.dart';
 import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -149,6 +150,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildInfoCard(user),
                 const SizedBox(height: 20),
                 _buildEditButton(user),
+                const SizedBox(height: 12),
+                _buildTutorialButton(),
                 const SizedBox(height: 12),
                 _buildLogoutButton(),
                 const SizedBox(height: 40),
@@ -559,6 +562,43 @@ class _ProfilePageState extends State<ProfilePage> {
             backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
             minimumSize: const Size(double.infinity, 54),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Tutorial Button ───────────────────────────────────────────────────
+  Widget _buildTutorialButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: SizedBox(
+        height: 54,
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const IntroductionPage(isFromProfile: true),
+              ),
+            );
+          },
+          icon: const Icon(Icons.help_outline_rounded, size: 20),
+          label: const Text(
+            'Tutorial Aplikasi',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
+            ),
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: _accentColor,
+            side: const BorderSide(color: Color(0x4400D2FF), width: 1.5),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),

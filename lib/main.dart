@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'injection.dart';
+import 'presentation/introduction_page.dart';
 import 'presentation/login_page.dart';
 import 'presentation/main_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -142,13 +144,16 @@ class _SplashWrapperState extends State<SplashWrapper>
 
   Future<void> _checkAuth() async {
     await Future.delayed(const Duration(seconds: 2));
+    final prefs = await SharedPreferences.getInstance();
+    final seenIntro = prefs.getBool('seen_introduction') ?? false;
     final isLoggedIn = await Injection.authRepository.isLoggedIn();
     if (mounted) {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (_, _, _) =>
-              isLoggedIn ? const MainScreen() : const LoginPage(),
+          pageBuilder: (_, _, _) => !seenIntro
+              ? const IntroductionPage(isFromProfile: false)
+              : (isLoggedIn ? const MainScreen() : const LoginPage()),
           transitionDuration: const Duration(milliseconds: 600),
           transitionsBuilder: (_, anim, _, child) =>
               FadeTransition(opacity: anim, child: child),

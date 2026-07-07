@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'injection.dart';
 import 'presentation/introduction_page.dart';
 import 'presentation/login_page.dart';
 import 'presentation/main_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +34,7 @@ class MainApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF0F0F1A),
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF6C63FF),
+          primary: Color(0xFF4CAF50),
           secondary: Color(0xFF00D2FF),
           surface: Color(0xFF1A1A2E),
           error: Color(0xFFFF6B6B),
@@ -75,7 +75,7 @@ class MainApp extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2),
+            borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -90,7 +90,7 @@ class MainApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF6C63FF),
+            backgroundColor: const Color(0xFF4CAF50),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
@@ -224,7 +224,7 @@ class _SplashWrapperState extends State<SplashWrapper>
                       const SizedBox(height: 24),
                       ShaderMask(
                         shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Color(0xFF6C63FF), Color(0xFF00D2FF)],
+                          colors: [Color(0xFF4CAF50), Color(0xFF00D2FF)],
                         ).createShader(bounds),
                         child: const Text(
                           'AbsenDulu',

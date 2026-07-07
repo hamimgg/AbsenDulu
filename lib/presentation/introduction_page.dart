@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../injection.dart';
 import 'login_page.dart';
 import 'main_screen.dart';
@@ -53,7 +54,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  const Color(0xFF6C63FF).withOpacity(0.2),
+                  const Color(0xFF4CAF50).withOpacity(0.2),
                   const Color(0xFF00D2FF).withOpacity(0.0),
                 ],
               ),
@@ -67,7 +68,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
-                colors: [Color(0xFF6C63FF), Color(0xFF00D2FF)],
+                colors: [Color(0xFF4CAF50), Color(0xFF00D2FF)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -98,7 +99,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
           Positioned(
             bottom: 40,
             right: 5,
-            child: _buildOrbitalDot(const Color(0xFF6C63FF), 12),
+            child: _buildOrbitalDot(const Color(0xFF4CAF50), 12),
           ),
         ],
       ),
@@ -159,9 +160,10 @@ class _IntroductionPageState extends State<IntroductionPage> {
                   Positioned.fill(
                     child: GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 6,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 6,
+                          ),
                       itemCount: 24,
                       itemBuilder: (context, index) {
                         return Container(
@@ -284,7 +286,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
               ),
               const Icon(
                 Icons.calendar_month_rounded,
-                color: Color(0xFF6C63FF),
+                color: Color(0xFF4CAF50),
                 size: 18,
               ),
             ],
@@ -428,7 +430,9 @@ class _IntroductionPageState extends State<IntroductionPage> {
             decoration: BoxDecoration(
               color: const Color(0xFF1A1A2E),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF2A2A4A).withOpacity(0.5)),
+              border: Border.all(
+                color: const Color(0xFF2A2A4A).withOpacity(0.5),
+              ),
             ),
             child: Row(
               children: [
@@ -470,7 +474,10 @@ class _IntroductionPageState extends State<IntroductionPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFF9800).withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
@@ -493,7 +500,9 @@ class _IntroductionPageState extends State<IntroductionPage> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.4)),
+                border: Border.all(
+                  color: const Color(0xFF4CAF50).withOpacity(0.4),
+                ),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -587,10 +596,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                     SizedBox(height: 2),
                     Text(
                       'absendulu@example.com',
-                      style: TextStyle(
-                        color: Color(0xFF8888AA),
-                        fontSize: 10,
-                      ),
+                      style: TextStyle(color: Color(0xFF8888AA), fontSize: 10),
                     ),
                   ],
                 ),
@@ -609,7 +615,9 @@ class _IntroductionPageState extends State<IntroductionPage> {
             decoration: BoxDecoration(
               color: const Color(0xFF1A1A2E),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF2A2A4A).withOpacity(0.5)),
+              border: Border.all(
+                color: const Color(0xFF2A2A4A).withOpacity(0.5),
+              ),
             ),
             child: Row(
               children: [
@@ -683,31 +691,36 @@ class _IntroductionPageState extends State<IntroductionPage> {
           pages: [
             PageViewModel(
               title: "Selamat Datang!",
-              body: "AbsenDulu adalah aplikasi absensi digital untuk mempermudah Anda melakukan presensi training secara real-time dan terintegrasi.",
+              body:
+                  "AbsenDulu adalah aplikasi absensi digital untuk mempermudah Anda melakukan presensi training secara real-time dan terintegrasi.",
               image: _buildWelcomeGraphic(),
               decoration: pageDecoration,
             ),
             PageViewModel(
               title: "Presensi GPS",
-              body: "Lakukan Check In dan Check Out berbasis lokasi GPS secara presisi. Aplikasi akan mencatat koordinat dan alamat Anda saat ini secara otomatis.",
+              body:
+                  "Lakukan Check In dan Check Out berbasis lokasi GPS secara presisi. Aplikasi akan mencatat koordinat dan alamat Anda saat ini secara otomatis.",
               image: _buildLocationGraphic(),
               decoration: pageDecoration,
             ),
             PageViewModel(
               title: "Pantau Riwayat",
-              body: "Lihat ringkasan kehadiran harian Anda dengan mudah. Waktu Check In dan Check Out tercatat dengan lengkap dan transparan.",
+              body:
+                  "Lihat ringkasan kehadiran harian Anda dengan mudah. Waktu Check In dan Check Out tercatat dengan lengkap dan transparan.",
               image: _buildHistoryGraphic(),
               decoration: pageDecoration,
             ),
             PageViewModel(
               title: "Izin & Cuti Mudah",
-              body: "Berhalangan hadir atau sakit? Anda dapat mengajukan permohonan izin langsung dari aplikasi dengan menuliskan keterangan secara praktis.",
+              body:
+                  "Berhalangan hadir atau sakit? Anda dapat mengajukan permohonan izin langsung dari aplikasi dengan menuliskan keterangan secara praktis.",
               image: _buildLeaveGraphic(),
               decoration: pageDecoration,
             ),
             PageViewModel(
               title: "Profil & Kelas",
-              body: "Akses detail akun, pastikan Anda berada di training dan batch yang sesuai, serta perbarui foto profil untuk verifikasi.",
+              body:
+                  "Akses detail akun, pastikan Anda berada di training dan batch yang sesuai, serta perbarui foto profil untuk verifikasi.",
               image: _buildProfileGraphic(),
               decoration: pageDecoration,
             ),
